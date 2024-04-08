@@ -1,0 +1,4 @@
+p = answer.body
+
+- if current_user&.author_of?(answer)
+  = link_to 'Remove answer', question_answer_path(@question, answer), method: :delete, data: { confirm: "Are you sure?" }

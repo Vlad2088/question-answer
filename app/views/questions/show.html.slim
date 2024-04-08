@@ -1,0 +1,10 @@
+h1= @question.title
+p= @question.body
+
+- if current_user&.author_of?(@question)
+  = link_to 'Remove question', question_path(@question), method: :delete, data: { confirm: "Are you sure?" }
+
+h2 Answers:
+= render @question.answer
+-if user_signed_in?
+  = render 'answers/form'

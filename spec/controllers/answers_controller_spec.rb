@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe AnswersController, type: :controller do
   let(:user) { create(:user) }
+  let(:author) { create(:user) }
   let(:question) { create(:question, user: user) }
   let(:answer) { create(:answer, question: question, user: user) }
 
@@ -101,20 +102,38 @@ RSpec.describe AnswersController, type: :controller do
   end
 
   describe 'DELETE #destroy' do
-    before { login(user) }
+     
+    let!(:question) { create(:question, user: author) }
+    let!(:answer) { create(:answer, question: question, user: author) }
 
-    let!(:question) { create(:question, user: user) }
-    let!(:answer) { create(:answer, question: question, user: user) }
+    describe 'Removes by the author' do
+      before { login(author) }
 
-    it 'deletes the answer' do
-      expect do
-         delete :destroy, params: { question_id: question.id, id: answer }
-      end.to change(question.answer, :count).by(-1)
+      it 'deletes the answer' do
+        expect do
+           delete :destroy, params: { question_id: question.id, id: answer }
+        end.to change(question.answer, :count).by(-1)
+      end
+
+      it 'redirects to question index' do
+        delete :destroy, params: { question_id: question.id, id: answer }
+        expect(response).to redirect_to questions_path
+      end
     end
 
-    it 'redirects to question index' do
-      delete :destroy, params: { question_id: question.id, id: answer }
-      expect(response).to redirect_to questions_path
+    describe 'Removes not by the author' do
+      before { login(user) }
+
+      it 'removing attempt the answer' do
+        expect do
+           delete :destroy, params: { question_id: question.id, id: answer }
+        end.to_not change(question.answer, :count)
+      end
+
+      it 'redirects to question show' do
+        delete :destroy, params: { question_id: question.id, id: answer }
+        expect(response).to redirect_to question_path(question)
+      end  
     end
   end
 end

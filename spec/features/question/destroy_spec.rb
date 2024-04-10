@@ -11,9 +11,16 @@ feature 'An authenticated user can remove a question', %q{
   scenario 'Authenticated user removes question' do
     sign_in(author)
     visit question_path(question)
+
+    expect(page).to have_content question.title
+    expect(page).to have_content question.body
+
     click_on 'Remove question'
 
     expect(page).to have_content 'Question removes'
+  
+    expect(page).to_not have_content question.title
+    expect(page).to_not have_content question.body
   end
 
   scenario 'Authenticated user is trying to remove someone else is question'do

@@ -12,8 +12,12 @@ feature 'An authenticated user can remove a answer', %q{
   scenario 'Authenticated user removes answer' do
     sign_in(author)
     visit question_path(question)
+
+    expect(page).to have_content answer.body
+
     click_on 'Remove answer'
 
+    expect(current_path).to eq questions_path
     expect(page).to have_content 'Your answer has been deleted'
   end
 

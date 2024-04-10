@@ -38,7 +38,7 @@ class QuestionsController < ApplicationController
       @question.destroy
       redirect_to questions_path, notice: 'Question removes'
     else
-      flash[:notice] = 'Error deleting question'
+      redirect_to question_path(@question), notice: 'Error deleting question'
     end
   end
 

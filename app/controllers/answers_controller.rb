@@ -1,4 +1,5 @@
 class AnswersController < ApplicationController
+  before_action :authenticate_user!, except: [:index]
   before_action :find_question, only: [:new, :create]
   before_action :load_answer, only: [:edit, :update, :destroy]
 
@@ -10,6 +11,7 @@ class AnswersController < ApplicationController
 
   def create
     @answer = @question.answer.new(answer_params)
+    @answer.user = current_user
 
     if @answer.save
       redirect_to question_path(@answer.question)
@@ -20,15 +22,19 @@ class AnswersController < ApplicationController
 
   def update
     if @answer.update(answer_params)
-      redirect_to question_path(@answer.question)   
+      redirect_to question_path(@answer.question)
     else
       render :edit
     end
   end
 
   def destroy
-    @answer.destroy
-    redirect_to questions_path
+    if current_user.author_of?(@answer)
+      @answer.destroy
+      redirect_to questions_path, notice: 'Your answer has been deleted'
+    else
+      redirect_to question_path(@answer.question), notice: 'The answer has not been deleted'
+    end
   end
 
   private
